@@ -16,6 +16,9 @@ namespace UnexpectedProjection
 
         public override string ToString()
         {
+            if (WindowsScreen == null)
+                return "Project to a Window Named 'UPPrj'";
+
             string strS = "\"" + WindowsScreen.DeviceName + "\" (" + WindowsScreen.Bounds.ToString() + ")";
             if (WindowsScreen.Primary)
                 strS += "[P]";
@@ -30,6 +33,7 @@ namespace UnexpectedProjection
         public UPScreens()
         {
             m_screens = new List<UPScreen>(Screen.AllScreens.Length);
+            m_screens.Add(new UPScreen(null));
             foreach (var s in Screen.AllScreens)
             {
                 m_screens.Add(new UPScreen(s));

@@ -84,6 +84,8 @@ namespace UnexpectedProjection
                 m_frmProject.FormClosed += (o, i) => { m_frmProject = null; };
                 btnProject.Text = "Stop Projecting";
                 UpdateMargins();
+                m_frmProject.FadeSeconds = (int)udFadeTime.Value;
+                m_frmProject.FadeOutDelaySeconds = (int)upFadeOutSecs.Value;
                 m_frmProject.MaxToScreen(m_currentScreen.WindowsScreen);
             }
         }
@@ -99,9 +101,13 @@ namespace UnexpectedProjection
             lbScreens.Items.Clear();
             int iFirstNonPrimary = -1;
 
+            // lbScreens.Items.Add();
             foreach (var s in m_screens.Screens)
             {
                 int i = lbScreens.Items.Add(s);
+                if (s.WindowsScreen == null)
+                    continue;
+
                 if (iFirstNonPrimary < 0 && !s.WindowsScreen.Primary)
                     iFirstNonPrimary = i;
 
@@ -168,6 +174,7 @@ namespace UnexpectedProjection
                 {
                     m_watcher = new FileSystemWatcher(m_currentPath);
                     m_watcher.Created += OnCreated;
+                    m_watcher.Changed += OnChanged;
                     m_watcher.EnableRaisingEvents = true;
                     btnListen.Text = "Stop Listening";
                 }
@@ -177,7 +184,14 @@ namespace UnexpectedProjection
 
         private static void OnCreated(object source, FileSystemEventArgs e)
         {
-            m_frmProject.ShowImage(e.FullPath);
+            m_frmProject?.ShowImage(e.FullPath);
+        }
+
+        private static void OnChanged(object source, FileSystemEventArgs e)
+        {
+            WatcherChangeTypes wct = e.ChangeType;
+            if (wct != WatcherChangeTypes.Deleted)
+                m_frmProject?.ShowImage(e.FullPath);
         }
 
         private void MainForm_Close(object sender, EventArgs e)
@@ -350,5 +364,20 @@ namespace UnexpectedProjection
             }
         }
 
+        private void udFadeTime_ValueChanged(object sender, EventArgs e)
+        {
+            if (m_frmProject != null)
+            {
+                m_frmProject.FadeSeconds = (int)udFadeTime.Value;
+            }
+        }
+
+        private void upFadeOutSecs_ValueChanged(object sender, EventArgs e)
+        {
+            if (m_frmProject != null)
+            {
+                m_frmProject.FadeOutDelaySeconds = (int)udFadeTime.Value;
+            }
+        }
     }
 }

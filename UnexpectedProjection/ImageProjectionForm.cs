@@ -17,6 +17,9 @@ namespace UnexpectedProjection
         long m_ticksInitial;
         Bitmap m_lastBitmap;
         int m_lastAlpha;
+        int m_fadeSeconds = 30;
+        int m_fadeOutDelay = 10;
+        string m_curPath = "";
         
         public ImageProjectionForm()
         {
@@ -25,6 +28,18 @@ namespace UnexpectedProjection
             m_timer.Interval = 100;
             m_timer.Tick += TimerTick;
             m_lastAlpha = 255;
+        }
+
+        public int FadeSeconds
+        {
+            get { return m_fadeSeconds; }
+            set { m_fadeSeconds = value; }
+        }
+
+        public int FadeOutDelaySeconds
+        {
+            get { return m_fadeOutDelay;  }
+            set { m_fadeOutDelay = value; }
         }
 
         static Bitmap SetAlpha(Bitmap bmpIn, int alpha)
@@ -53,9 +68,12 @@ namespace UnexpectedProjection
 
         private void TimerTick(object sender, EventArgs e)
         {
-            long msWait = 10000;
-            long msFadeTime = 30000;
+            long msWait = this.FadeOutDelaySeconds * 1000;
+            long msFadeTime = this.FadeSeconds * 1000;
             long msDuration = (DateTime.Now.Ticks - m_ticksInitial) / TimeSpan.TicksPerMillisecond;
+
+            if (msWait == 0)
+                m_timer.Stop();
 
             if (msDuration > msWait && msDuration < (msWait + msFadeTime))
             {
@@ -70,6 +88,7 @@ namespace UnexpectedProjection
             if (msDuration >= msWait + msFadeTime)
             {
                 pbProject.Image = SetAlpha(m_lastBitmap, 0);
+                m_curPath = "";
                 m_timer.Stop();
             }
 
@@ -134,9 +153,13 @@ namespace UnexpectedProjection
             {
                 try
                 {
-                    Image imgDisk = Image.FromFile(imgPath);
-                    ShowImage(imgDisk);
-                    imgDisk.Dispose();
+                    if (imgPath != m_curPath)
+                    {
+                        m_curPath = imgPath;
+                        Image imgDisk = Image.FromFile(imgPath);
+                        ShowImage(imgDisk);
+                        imgDisk.Dispose();
+                    }
                 }
                 catch(Exception)
                 {
@@ -164,6 +187,7 @@ namespace UnexpectedProjection
             {
                 grp.FillRectangle(Brushes.Black, 0, 0, pbProject.Width, pbProject.Height);
                 ShowImage(blackImage);
+                m_curPath = "";
             }
 
         }
