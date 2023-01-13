@@ -349,18 +349,39 @@ namespace UnexpectedProjection
 
             Image iClipboard = Clipboard.GetImage();
             if (iClipboard != null)
+            {
                 m_frmProject.ShowImage(iClipboard);
 
-            string strPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-            string strUnique = "\\" + DateTime.Now.ToString("yy-MM-dd-hh-mm-ss-") + DateTime.Now.Ticks.ToString() + ".jpg";
+                string strPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                string strUnique = "\\" + DateTime.Now.ToString("yy-MM-dd-hh-mm-ss-") + DateTime.Now.Ticks.ToString() + ".jpg";
 
-            try
-            {
-                iClipboard.Save(strPath + strUnique);
+                try
+                {
+                    iClipboard.Save(strPath + strUnique);
+                }
+                catch (Exception)
+                {
+                    // Silent fail
+                }
             }
-            catch (Exception)
+            else
             {
-                // Silent fail
+                string txtPath = "";
+
+                var fdList = Clipboard.GetFileDropList();
+                if (fdList != null && fdList.Count > 0)
+                {
+                    txtPath = fdList[0];
+                }
+                else
+                {
+                    txtPath = Clipboard.GetText();
+                }
+
+                if (File.Exists(txtPath))
+                {
+                    m_frmProject.ShowImage(txtPath);
+                }
             }
         }
 
