@@ -110,6 +110,13 @@ namespace UnexpectedProjection
                 this.Height = workingArea.Height;
                 this.WindowState = FormWindowState.Maximized;
             }
+            else
+            {
+                this.Left = 20;
+                this.Top = 20;
+                this.Width = 1024;
+                this.Height = 768;
+            }
         }
 
         public void ShowTestImage()
